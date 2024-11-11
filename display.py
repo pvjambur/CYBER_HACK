@@ -1,4 +1,5 @@
 import pandas as pd
+import streamlit as st
 
 # Load the CSV file
 file_path = 'train.csv'  # Replace with your CSV file path
@@ -10,29 +11,16 @@ category_counts = df.groupby(['category', 'sub_category']).size().reset_index(na
 # Sort values by category and sub_category for better readability
 category_counts = category_counts.sort_values(by=['category', 'sub_category']).reset_index(drop=True)
 
-# Display with formatting
-def display_category_counts(category_counts):
-    # Get unique categories
-    unique_categories = category_counts['category'].unique()
-    
-    # Print header
-    print(f"{'Category':<20} {'Sub-Category':<20} {'Count':<10}")
-    print("-" * 50)
-    
-    # Loop through each category
-    for category in unique_categories:
-        # Filter sub-categories for the current category
-        sub_category_data = category_counts[category_counts['category'] == category]
-        
-        # Display category name (once per unique category)
-        print(f"{category:<20}")
-        
-        # Loop through sub-categories and counts
-        for _, row in sub_category_data.iterrows():
-            print(f"{'':<20} {row['sub_category']:<20} {row['count']:<10}")
-        
-        # Separator line between categories for readability
-        print("-" * 50)
+# Display in Streamlit with a well-tabulated format
+st.title("Category and Sub-Category Counts")
 
-# Call the function to display results
-display_category_counts(category_counts)
+# Create a pivot table for better readability, which separates each category and sub-category
+pivot_table = category_counts.pivot_table(index='category', columns='sub_category', values='count', fill_value=0)
+
+# Display the pivot table using Streamlit's `st.dataframe` for an interactive table, or `st.table` for a static table
+st.write("### Interactive Table of Counts by Category and Sub-Category")
+st.dataframe(category_counts, use_container_width=True)
+
+# Alternatively, display a more aggregated format if needed
+st.write("### Pivot Table View of Counts by Category and Sub-Category")
+st.dataframe(pivot_table, use_container_width=True)
